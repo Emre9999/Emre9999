@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #000;
+        }
+        #video-container {
+            position: relative;
+            width: 80%;
+            height: 80%;
+        }
+        #video {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #play-button {
+            position: absolute;
+            z-index: 10;
+            background: #fff;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="video-container">
+        <video id="video" muted></video>
+        <button id="play-button">Ortada Videoyu Başlat</button>
+    </div>
+
+    <script>
+        const playButton = document.getElementById('play-button');
+        const video = document.getElementById('video');
+
+        // Video URL'lerini bir dizi içinde saklıyoruz
+        const videoUrls = [
+            'https://media.discordapp.net/attachments/829128201119989800/1283184427178004582/4_5971031399400998482.mp4?ex=66e2121f&is=66e0c09f&hm=2198209a8d99415bf227edb5e713eaf57056b0d5504a381786d72cca92724549&',
+            'https://media.discordapp.net/attachments/829128201119989800/1283178955456774236/1_5112057220309189571.mp4?ex=66e20d07&is=66e0bb87&hm=a3ed10b896c2200a227f7876e6d10a0850ef661fad5cdf095dcfe35f18362295&'
+        ];
+
+        let currentIndex = 0;
+
+        playButton.addEventListener('click', () => {
+            playButton.style.display = 'none';
+            video.muted = false;
+            playVideo();
+        });
+
+        function playVideo() {
+            video.src = videoUrls[currentIndex];
+            video.play();
+            moveVideo();
+
+            video.addEventListener('ended', () => {
+                currentIndex = (currentIndex + 1) % videoUrls.length;
+                video.src = videoUrls[currentIndex];
+                video.play();
+            });
+        }
+
+        function moveVideo() {
+            let x = 0;
+            let y = 0;
+            let dx = 2;
+            let dy = 2;
+            let audioIncrement = 0.1;
+
+            function animate() {
+                if (video.currentTime >= video.duration) {
+                    video.currentTime = 0;
+                }
+
+                x += dx;
+                y += dy;
+                if (x + video.clientWidth > window.innerWidth || x < 0) {
+                    dx = -dx;
+                }
+                if (y + video.clientHeight > window.innerHeight || y < 0) {
+                    dy = -dy;
+                }
+
+                video.style.transform = `translate(${x}px, ${y}px)`;
+
+                // Increase volume
+                if (video.volume < 1) {
+                    video.volume = Math.min(1, video.volume + audioIncrement / 100);
+                }
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        }
+    </script>
+</body>
+</html>
